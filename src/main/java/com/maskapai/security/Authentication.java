@@ -18,6 +18,7 @@ import java.util.Map;
 public class Authentication {
     private final static Logger LOGGER = LoggerFactory.getLogger(Authentication.class);
 
+    // in real world this will be using Auth server ie: AD
     Map<String, String> usernamePassword = new HashMap() {{
         put("foo", "bar");
     }};
