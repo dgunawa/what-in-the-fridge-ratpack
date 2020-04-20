@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+What In The Fridge Task,com.maskapai.model,Refrigerator,8,130,0,12,4,29,2,14,2,8
+What In The Fridge Task,com.maskapai.model,CountingProcessor,0,292,1,11,0,60,1,18,0,13
+What In The Fridge Task,com.maskapai.security,Authentication.new HashMap() {...},0,11,0,0,0,3,0,1,0,1
+What In The Fridge Task,com.maskapai.security,Authentication,5,149,3,5,2,31,3,6,0,5
+What In The Fridge Task,com.maskapai.performance,HystrixSyncHttpCommand,48,0,0,0,22,0,3,0,3,0
+What In The Fridge Task,com.maskapai,AppMain,32,439,5,21,6,75,7,33,2,25
+What In The Fridge Task,com.maskapai,AppMain.new HystrixSyncHttpCommand() {...},5,0,0,0,1,0,1,0,1,0

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppMain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">What In The Fridge Task</a> &gt; <a href="index.source.html" class="el_package">com.maskapai</a> &gt; <span class="el_source">AppMain.java</span></div><h1>AppMain.java</h1><pre class="source lang-java linenums">package com.maskapai;
+
+import com.maskapai.model.CountingProcessor;
+import com.maskapai.performance.HystrixSyncHttpCommand;
+import com.maskapai.security.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ratpack.dropwizard.metrics.DropwizardMetricsModule;
+import ratpack.form.Form;
+import ratpack.guice.Guice;
+import ratpack.handling.RequestLogger;
+import ratpack.jackson.Jackson;
+import ratpack.server.RatpackServer;
+
+import java.net.URI;
+
+<span class="nc" id="L17">public class AppMain {</span>
+<span class="fc" id="L18">    private final static Logger LOGGER = LoggerFactory.getLogger(AppMain.class);</span>
+
+<span class="fc" id="L20">    private static final URI uri = URI.create(&quot;https://www.myhystrixserver.com/&quot;);</span>
+    private static final int timeout = 500;
+
+    public static void main(String[] args) throws Exception {
+<span class="fc" id="L24">        CountingProcessor countingProcessor = new CountingProcessor();</span>
+<span class="fc" id="L25">        Authentication authentication = new Authentication();</span>
+
+<span class="fc" id="L27">        RatpackServer.start(</span>
+<span class="fc" id="L28">           server -&gt; server</span>
+<span class="fc" id="L29">                .registry(Guice.registry(bindings -&gt; bindings</span>
+<span class="fc" id="L30">                    .module(DropwizardMetricsModule.class, config -&gt; config.jmx().console())</span>
+                ))
+<span class="fc" id="L32">                .handlers(chain -&gt; chain</span>
+<span class="fc" id="L33">                .all(RequestLogger.ncsa())</span>
+<span class="pc" id="L34">                .get(&quot;sync&quot;, ctx -&gt; ctx.render(new HystrixSyncHttpCommand(uri, timeout) {}.execute()))</span>
+<span class="fc" id="L35">                .path(&quot;login&quot;, ctx -&gt; ctx</span>
+<span class="fc" id="L36">                        .byMethod(method -&gt; method</span>
+<span class="fc" id="L37">                                .post(() -&gt; {</span>
+<span class="fc" id="L38">                                    ctx.parse(Form.class).then(form -&gt; {</span>
+<span class="fc" id="L39">                                        String username = form.get(&quot;username&quot;);</span>
+<span class="fc" id="L40">                                        String password = form.get(&quot;password&quot;);</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">                                        if (authentication.verifyUsernamePassword(username, password)) {</span>
+<span class="fc" id="L42">                                            ctx.render(authentication.getToken(username, password));</span>
+                                        } else {
+<span class="fc" id="L44">                                            ctx.clientError(401);</span>
+                                        }
+<span class="fc" id="L46">                                    });</span>
+<span class="fc" id="L47">                                })</span>
+                        )
+                )
+<span class="fc" id="L50">                .path(&quot;refrigerator/:id&quot;, ctx -&gt; ctx</span>
+<span class="fc" id="L51">                        .byMethod(method -&gt; method</span>
+<span class="fc" id="L52">                                .get(() -&gt; {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                                    if (countingProcessor.isId(ctx.getPathTokens().get(&quot;id&quot;))) {</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L55">                                            ctx.render(Jackson.json(countingProcessor.getId(ctx.getPathTokens().get(&quot;id&quot;))));</span>
+                                        } else {
+<span class="fc" id="L57">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L60">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L62">                                })</span>
+<span class="fc" id="L63">                                .delete(() -&gt; {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                                    if (countingProcessor.isId(ctx.getPathTokens().get(&quot;id&quot;))) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L66">                                            ctx.render(Jackson.json(countingProcessor.deleteId(ctx.getPathTokens().get(&quot;id&quot;))));</span>
+                                        } else {
+<span class="nc" id="L68">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L71">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L73">                                })</span>
+                        )
+                )
+<span class="fc" id="L76">                .path(&quot;refrigerator/:id/item&quot;, ctx -&gt; ctx</span>
+<span class="fc" id="L77">                        .byMethod(method -&gt; method</span>
+<span class="fc" id="L78">                                .post(() -&gt; {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                                    if (countingProcessor.isId(ctx.getPathTokens().get(&quot;id&quot;))) {</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L81">                                            ctx.getRequest().getBody().then(data -&gt; {</span>
+<span class="fc" id="L82">                                                countingProcessor.postItemJson(ctx.getPathTokens().get(&quot;id&quot;), data.getText());</span>
+<span class="fc" id="L83">                                                ctx.render(Jackson.json(countingProcessor.getId(ctx.getPathTokens().get(&quot;id&quot;))));</span>
+<span class="fc" id="L84">                                            });</span>
+                                        } else {
+<span class="nc" id="L86">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L89">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L91">                                })</span>
+<span class="fc" id="L92">                                .put(() -&gt; {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                                    if (countingProcessor.isId(ctx.getPathTokens().get(&quot;id&quot;))) {</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L95">                                            ctx.getRequest().getBody().then(data -&gt; {</span>
+<span class="fc" id="L96">                                                countingProcessor.putItemJson(ctx.getPathTokens().get(&quot;id&quot;), data.getText());</span>
+<span class="fc" id="L97">                                                ctx.render(Jackson.json(countingProcessor.getId(ctx.getPathTokens().get(&quot;id&quot;))));</span>
+<span class="fc" id="L98">                                            });</span>
+                                        } else {
+<span class="nc" id="L100">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L103">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L105">                                })</span>
+<span class="fc" id="L106">                                .delete(() -&gt; {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                                    if (countingProcessor.isId(ctx.getPathTokens().get(&quot;id&quot;))) {</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L109">                                            ctx.getRequest().getBody().then(data -&gt; {</span>
+<span class="fc" id="L110">                                                countingProcessor.deleteItemJson(ctx.getPathTokens().get(&quot;id&quot;), data.getText());</span>
+<span class="fc" id="L111">                                                ctx.render(Jackson.json(countingProcessor.getId(ctx.getPathTokens().get(&quot;id&quot;))));</span>
+<span class="fc" id="L112">                                            });</span>
+                                        } else {
+<span class="nc" id="L114">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L117">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L119">                                })</span>
+                        )
+                )
+<span class="fc" id="L122">                .path(&quot;refrigerator/:id/item/:itemName&quot;, ctx -&gt; ctx</span>
+<span class="fc" id="L123">                        .byMethod(method -&gt; method</span>
+<span class="fc" id="L124">                                .get(() -&gt; {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">                                    if (countingProcessor.isItem(ctx.getPathTokens().get(&quot;id&quot;), ctx.getPathTokens().get(&quot;itemName&quot;))) {</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">                                        if (authentication.verifyToken(ctx.getRequest().getHeaders().get(&quot;token&quot;))) {</span>
+<span class="fc" id="L127">                                            ctx.render(countingProcessor.getItem(ctx.getPathTokens().get(&quot;id&quot;), ctx.getPathTokens().get(&quot;itemName&quot;)));</span>
+                                        } else {
+<span class="nc" id="L129">                                            ctx.clientError(401);</span>
+                                        }
+                                    } else {
+<span class="fc" id="L132">                                        ctx.clientError(404);</span>
+                                    }
+<span class="fc" id="L134">                                })</span>
+                        )
+                )
+        ));
+<span class="fc" id="L138">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

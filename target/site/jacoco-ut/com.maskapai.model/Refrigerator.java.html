@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Refrigerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">What In The Fridge Task</a> &gt; <a href="index.source.html" class="el_package">com.maskapai.model</a> &gt; <span class="el_source">Refrigerator.java</span></div><h1>Refrigerator.java</h1><pre class="source lang-java linenums">package com.maskapai.model;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+public class Refrigerator {
+<span class="fc" id="L9">    private final static Logger LOGGER = LoggerFactory.getLogger(Refrigerator.class);</span>
+
+    private String id;
+    private Map&lt;String, Integer&gt; items;
+
+<span class="fc" id="L14">    private final int MAX_SODA = 12;</span>
+
+    public String getId() {
+<span class="fc" id="L17">        return id;</span>
+    }
+
+    public void setId(String id) {
+<span class="nc" id="L21">        this.id = id;</span>
+<span class="nc" id="L22">    }</span>
+
+    public Map&lt;String, Integer&gt; getItems() {
+<span class="fc" id="L25">        return items;</span>
+    }
+
+    public void setItems(Map&lt;String, Integer&gt; items) {
+<span class="nc" id="L29">        this.items = items;</span>
+<span class="nc" id="L30">    }</span>
+
+    public Integer getItem(String itemName) {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        Integer currCount = items.get(itemName) == null ? 0 : items.get(itemName);</span>
+<span class="fc" id="L34">        return currCount;</span>
+    }
+
+    public Integer addItem(String itemName, Integer count) {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        Integer currCount = items.get(itemName) == null ? 0 : items.get(itemName);</span>
+<span class="fc" id="L39">        int newCount = currCount + count;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (newCount &gt; MAX_SODA) {</span>
+<span class="fc" id="L41">            newCount = MAX_SODA;</span>
+        }
+<span class="fc" id="L43">        items.put(itemName, newCount);</span>
+<span class="fc" id="L44">        return newCount;</span>
+    }
+
+    public Integer replaceItem(String itemName, Integer count) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (count &gt; MAX_SODA) {</span>
+<span class="fc" id="L49">            count = MAX_SODA;</span>
+        }
+<span class="fc" id="L51">        items.put(itemName, count);</span>
+<span class="fc" id="L52">        return count;</span>
+    }
+
+    public Integer removeItem(String itemName, Integer count) {
+<span class="fc" id="L56">        Integer currCount = items.get(itemName);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (currCount != null) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (currCount &gt; count) {</span>
+<span class="fc" id="L59">                int newCount = currCount - count;</span>
+<span class="fc" id="L60">                items.put(itemName, newCount);</span>
+<span class="fc" id="L61">                return newCount;</span>
+            } else {
+<span class="fc" id="L63">                items.remove(itemName);</span>
+<span class="fc" id="L64">                return 0;</span>
+            }
+        } else {
+<span class="fc" id="L67">            return 0;</span>
+        }
+    }
+
+<span class="fc" id="L71">    public Refrigerator(String id, Map&lt;String, Integer&gt; itemMap) {</span>
+<span class="fc" id="L72">        this.id = id;</span>
+<span class="fc" id="L73">        this.items = itemMap;</span>
+<span class="fc" id="L74">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
