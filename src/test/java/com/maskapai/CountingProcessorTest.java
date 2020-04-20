@@ -48,5 +48,5 @@ public class CountingProcessorTest {
     public void deleteItemBelowZero() {
         assertEquals("{\"item\":{\"soda\":0},\"refrigerator\":\"1\"}", countingProcessor.deleteItem("1", "soda", "3"));
     }
-    
+
 }
